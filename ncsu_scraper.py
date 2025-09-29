@@ -185,7 +185,7 @@ def scrape_ncsu_dining():
                                         except Exception:
                                             # fallback if element not found
                                             food_details[key] = 'N/A'
-                                        
+                                     all_food_data.append(food_details)   
                             
                                     finally:
                                         # Close popup and switch back to main window
@@ -230,4 +230,5 @@ def scrape_ncsu_dining():
 if __name__ == '__main__':
 
     scrape_ncsu_dining()
+
 
