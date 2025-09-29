@@ -165,29 +165,26 @@ def scrape_ncsu_dining():
                                         'Iron': 'N/A'
                                     }
 
-                                        serving_size = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[3]/td').text
+                                        nutrient_map = {
+                                                        'Serving Size': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[3]/td',
+                                                        'Calories': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[5]/td/table/tbody/tr/td[1]/span[2]',
+                                                        'Total Fat': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[7]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span',
+                                                        'Saturated Fat': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[8]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span',
+                                                        'Sodium': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[10]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span',
+                                                        'Total Carbohydrate': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[11]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span',
+                                                        'Protein': '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[12]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span'
+                                                        }
 
-                                        food_details['Serving Size'] = serving_size
-                                        food_details['Serving Size (g)'] = parse_grams(serving_size)
-
-
-                                        calories = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[5]/td/table/tbody/tr/td[1]/span[2]').text
-                                        food_details['Calories'] = calories
-
-                                        total_fat = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[7]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
-                                        food_details['Total Fat'] = total_fat
-                                        
-                                        saturated_fat = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[8]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
-                                        food_details['Saturated Fat'] = saturated_fat
-
-                                        sodium = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[10]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
-                                        food_details['Sodium'] = sodium
-
-                                        carbs = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[11]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
-                                        food_details['Total Carbohydrate'] = carbs
-
-                                        protein = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[12]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
-                                        food_details['Protein'] = protein
+                                    # Loop through map to populate food_details
+                                    for key, xpath in nutrient_map.items():
+                                        try:
+                                            value = driver.find_element(By.XPATH, xpath).text
+                                            food_details[key] = value
+                                            if key == 'Serving Size':
+                                                food_details['Serving Size (g)'] = parse_grams(value)
+                                        except Exception:
+                                            # fallback if element not found
+                                            food_details[key] = 'N/A'
                                         
                             
                                     finally:
@@ -233,3 +230,4 @@ def scrape_ncsu_dining():
 if __name__ == '__main__':
 
     scrape_ncsu_dining()
+
