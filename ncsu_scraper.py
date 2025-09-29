@@ -154,7 +154,6 @@ def scrape_ncsu_dining():
                                         'Total Fat': 'N/A',
                                         'Saturated Fat': 'N/A',
                                         'Trans Fat': 'N/A',
-                                        'Cholesterol': 'N/A',
                                         'Sodium': 'N/A',
                                         'Total Carbohydrate': 'N/A',
                                         'Dietary Fiber': 'N/A',
@@ -180,7 +179,17 @@ def scrape_ncsu_dining():
                                         
                                         saturated_fat = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[8]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
                                         food_details['Saturated Fat'] = saturated_fat
-                                    
+
+                                        sodium = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[10]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
+                                        food_details['Sodium'] = sodium
+
+                                        carbs = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[11]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
+                                        food_details['Total Carbohydrate'] = carbs
+
+                                        protein = driver.find_element(By.XPATH, '//*[@id="nutritionLabel"]/div/div/table/tbody/tr[12]/td/table/tbody/tr/td/table/tbody/tr/td[2]/span').text
+                                        food_details['Protein'] = protein
+                                        
+                            
                                     finally:
                                         # Close popup and switch back to main window
                                         if len(driver.window_handles) > 1:
@@ -222,4 +231,5 @@ def scrape_ncsu_dining():
     print("✅ Success! Data saved to nc_state_dining_menu.csv")
 
 if __name__ == '__main__':
+
     scrape_ncsu_dining()
