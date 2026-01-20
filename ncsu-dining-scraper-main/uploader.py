@@ -12,6 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
+# --- CONFIGURATION ---
 UPLOAD_FILE = 'to_upload.csv'
 HISTORY_FILE = 'upload_history.json'
 DEBUG_PORT = 9222 
@@ -26,7 +27,7 @@ def setup_existing_driver():
         print(" Connected!")
         return driver
     except:
-        print(" CRITICAL: Make sure Chrome is open with port 9222.")
+        print("Make sure Chrome is open with port 9222.")
         return None
 
 def update_history(item_id):
@@ -41,15 +42,18 @@ def safe_type_id(driver, element_id, text, submit_after=False):
     try:
         target_elem = driver.find_element(By.ID, element_id)
         
+        # Scroll & Focus
         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", target_elem)
         time.sleep(0.1)
         try: target_elem.click()
         except: pass
         
+        # Nuclear Clear
         target_elem.send_keys(Keys.CONTROL + "a")
         time.sleep(0.05)
         target_elem.send_keys(Keys.BACKSPACE)
 
+        # Type
         if text is not None and str(text) != 'nan':
             for char in str(text):
                 target_elem.send_keys(char)
@@ -64,11 +68,13 @@ def safe_type_id(driver, element_id, text, submit_after=False):
         return False
 
 def force_click_create_food(driver):
+    print("   [Duplicate Check] Scanning...", end="")
     time.sleep(2)
     if "duplicate" not in driver.current_url and "similar" not in driver.page_source:
         print(" No warning.")
         return
 
+    print(" DETECTED! Clicking 'Create Food'...")
     selectors = ["//button[contains(text(), 'Create Food')]", "input[value='Create Food']"]
     
     for selector in selectors:
@@ -85,6 +91,7 @@ def force_click_create_food(driver):
     time.sleep(4)
 
 def main():
+    print("\n RUNNING ID-TARGETED SCRIPT\n")
     if not os.path.exists(UPLOAD_FILE): return
 
     queue = pd.read_csv(UPLOAD_FILE)
@@ -94,6 +101,9 @@ def main():
 
     for i, (index, row) in enumerate(queue.iterrows()):
         food_name = row['Food Name']
+        if str(food_name).strip() in ['N/A', 'nan', '']:
+            print(f" Skipping Duplicate/Empty Item (Row {i+1})")
+            continue
         calories = row['Calories']
         if pd.isna(calories) or str(calories).strip() in ['N/A', '-', '']: continue
             
@@ -147,10 +157,10 @@ def main():
                 save_btn = driver.find_element(By.CSS_SELECTOR, "input[value='Save Changes']")
                 driver.execute_script("arguments[0].click();", save_btn)
                 update_history(unique_id)
-                print("BATCH COMPLETE")
+                print("    BATCH COMPLETE!")
                 
             else:
-                print(" Saving & Looping")
+                print(" Saving & Looping...")
                 # Click "Save and Create Another" (Prepares for next item)
                 loop_btn = driver.find_element(By.CSS_SELECTOR, "input[value='Save and Create Another']")
                 driver.execute_script("arguments[0].click();", loop_btn)
